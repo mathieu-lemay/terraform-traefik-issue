@@ -1,0 +1,19 @@
+services:
+  traefik:
+    image: traefik:3.3
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./traefik.yml:/etc/traefik/traefik.yml"
+    restart: unless-stopped
+
+  terraform-state:
+    image: acidrain/tf-state-api:1.0.1
+    environment:
+      RUST_LOG: debug
+      TF_STATE__ENCRYPTION__KEY: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+    labels:
+      traefik.enable: true
+      traefik.http.routers.terraform-state.rule: "Host(`tf.localhost`)"
+    restart: unless-stopped
